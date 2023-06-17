@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api\V1;
 use Illuminate\Http\Request;
 use App\Models\Invoice;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreInvoiceRequest;
-use App\Http\Requests\UpdateInvoiceRequest;
+use App\Http\Requests\V1\StoreInvoiceRequest;
+use App\Http\Requests\V1\UpdateInvoiceRequest;
 use App\Filters\V1\InVoiceFilter;
 use App\Http\Resources\V1\InvoiceResource;
+use App\Http\Requests\V1\InvoicesBulkRequest;
+use Illuminate\Support\Arr;
 
 class InvoiceController extends Controller
 {
@@ -72,5 +74,13 @@ class InvoiceController extends Controller
     public function destroy(Invoice $invoice)
     {
         //
+    }
+
+    public function InvoicesBulk(InvoicesBulkRequest $request)
+    {
+        $data = collect($request->all())->map(function($arr, $key) {
+            return Arr::except($arr, ['customerId', 'billedDate', 'paidDate']);
+        });
+        return Invoice::insert($data->toArray());
     }
 }
